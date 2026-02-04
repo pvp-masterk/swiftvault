@@ -3,165 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SwiftSMP Economy CMD</title>
-    <!-- Icons -->
+    <title>SwiftSMP Economy</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+    <!-- CUSTOM MODAL CONTAINER -->
+    <div id="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header" id="modal-title">Title</div>
+            <div class="modal-body" id="modal-content"></div>
+            <div class="modal-footer" id="modal-actions"></div>
+        </div>
+    </div>
+
     <div class="app-container">
-        <!-- SIDEBAR NAVIGATION -->
+        <!-- SIDEBAR -->
         <aside class="sidebar">
             <div class="brand">
-                <i class="fa-solid fa-cube"></i> SWIFT<span>ECO</span>
+                <i class="fa-solid fa-gem"></i> 
+                <span>SwiftEco</span>
             </div>
             <nav>
-                <button class="nav-btn active" data-target="dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</button>
-                <button class="nav-btn" data-target="shops"><i class="fa-solid fa-store"></i> Shop Manager</button>
-                <button class="nav-btn" data-target="intel"><i class="fa-solid fa-user-secret"></i> Market Intel</button>
-                <button class="nav-btn" data-target="wiki"><i class="fa-solid fa-book"></i> Wiki & Notes</button>
-                <button class="nav-btn" data-target="journal"><i class="fa-solid fa-pen-nib"></i> Daily Log</button>
-                <button class="nav-btn" data-target="risk"><i class="fa-solid fa-skull"></i> Risk Tracker</button>
-                <button class="nav-btn" data-target="profile"><i class="fa-solid fa-id-card"></i> Profile</button>
+                <button class="nav-btn active" data-target="dashboard"><i class="fa-solid fa-chart-pie"></i> Dashboard</button>
+                <button class="nav-btn" data-target="shops"><i class="fa-solid fa-shop"></i> Shops</button>
+                <button class="nav-btn" data-target="intel"><i class="fa-solid fa-mask"></i> Intel</button>
+                <button class="nav-btn" data-target="risk"><i class="fa-solid fa-scale-balanced"></i> Risk Calc</button>
+                <button class="nav-btn" data-target="wiki"><i class="fa-solid fa-book-open"></i> Notes</button>
             </nav>
             <div class="user-mini">
-                <div class="avatar"><i class="fa-solid fa-user"></i></div>
+                <div class="avatar" id="mini-avatar">S</div>
                 <div class="info">
-                    <span id="mini-ign">Player</span>
-                    <span id="mini-bal" class="money">$0</span>
+                    <div id="mini-ign" style="font-weight:bold; font-size:0.9rem;">Steve</div>
+                    <div id="mini-bal" class="money text-success" style="font-size:0.8rem;">$0</div>
                 </div>
             </div>
         </aside>
 
-        <!-- MAIN CONTENT AREA -->
+        <!-- CONTENT -->
         <main class="content">
             
-            <!-- SECTION: DASHBOARD -->
+            <!-- DASHBOARD -->
             <section id="dashboard" class="view active">
                 <header>
-                    <h1>Command Center</h1>
-                    <button class="btn-primary" onclick="addTransactionModal()">+ Add Transaction</button>
+                    <h1>Overview</h1>
+                    <button class="btn-primary" onclick="App.openTransactionModal()"><i class="fa-solid fa-plus"></i> Log Transaction</button>
                 </header>
 
                 <div class="stats-grid">
                     <div class="card stat-card">
-                        <h3>Current Balance</h3>
-                        <h2 id="dash-balance" class="money">$0</h2>
+                        <h3>Balance</h3>
+                        <h2 id="dash-balance" class="money text-success">$0</h2>
                     </div>
                     <div class="card stat-card">
-                        <h3>Net Worth (Est)</h3>
-                        <h2 id="dash-networth" class="money">$0</h2>
+                        <h3>Net Worth</h3>
+                        <h2 id="dash-networth" class="money text-warning">$0</h2>
                     </div>
                     <div class="card stat-card">
-                        <h3>Total Profit (All Time)</h3>
-                        <h2 id="dash-profit" class="money positive">+$0</h2>
+                        <h3>All-Time Profit</h3>
+                        <h2 id="dash-profit" class="money">$0</h2>
                     </div>
                 </div>
 
                 <div class="dashboard-split">
-                    <div class="card chart-container">
-                        <h3>Balance History</h3>
+                    <div class="card" style="position: relative; height: 350px;">
                         <canvas id="balanceChart"></canvas>
                     </div>
-                    <div class="card recent-tx">
-                        <h3>Recent Activity</h3>
-                        <ul id="tx-list">
-                            <!-- JS fills this -->
-                        </ul>
+                    <div class="card">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                            <h3>Recent Activity</h3>
+                            <button class="btn-secondary" style="padding: 2px 8px; font-size: 0.7rem;" onclick="App.clearHistory()">Clear</button>
+                        </div>
+                        <ul class="tx-list" id="tx-list"></ul>
                     </div>
                 </div>
             </section>
 
-            <!-- SECTION: SHOP MANAGER -->
+            <!-- SHOPS -->
             <section id="shops" class="view">
                 <header>
-                    <h1>Shop Operations</h1>
-                    <button class="btn-primary" onclick="toggleShopForm()">+ New Listing</button>
+                    <h1>My Listings</h1>
+                    <button class="btn-primary" onclick="App.openShopModal()"><i class="fa-solid fa-tag"></i> New Item</button>
                 </header>
-
-                <!-- Hidden Form -->
-                <div id="shop-form" class="card form-card hidden">
-                    <h3>Add/Edit Shop Item</h3>
-                    <div class="input-group">
-                        <input type="text" id="shop-item-name" placeholder="Item Name (e.g. Diamond Sword)">
-                        <input type="number" id="shop-cost" placeholder="Cost to Obtain">
-                        <input type="number" id="shop-price" placeholder="Selling Price">
-                        <input type="number" id="shop-stock" placeholder="Current Stock">
-                        <input type="text" id="shop-notes" placeholder="Notes (e.g. Undercutting iHateCreepers)">
-                    </div>
-                    <button class="btn-save" onclick="saveShopItem()">Save Item</button>
-                </div>
-
-                <div class="shop-grid" id="shop-list">
-                    <!-- JS Fills Shop Cards -->
-                </div>
+                <div class="shop-grid" id="shop-list"></div>
             </section>
 
-            <!-- SECTION: MARKET INTEL -->
+            <!-- INTEL -->
             <section id="intel" class="view">
                 <header>
-                    <h1>Market Intelligence</h1>
-                    <button class="btn-primary" onclick="addCompetitor()">+ Track Player</button>
+                    <h1>Competitor Intel</h1>
+                    <button class="btn-primary" onclick="App.openIntelModal()"><i class="fa-solid fa-eye"></i> Track Player</button>
                 </header>
-                <div class="intel-grid" id="intel-list">
-                    <!-- JS Fills Competitor Cards -->
+                <div class="shop-grid" id="intel-list"></div>
+            </section>
+
+            <!-- RISK CALC -->
+            <section id="risk" class="view">
+                <header><h1>Risk Calculator</h1></header>
+                <div class="card" style="max-width: 600px; margin: 0 auto;">
+                    <div class="form-group">
+                        <label class="form-label">Quick Preset</label>
+                        <select class="form-select" onchange="App.loadRiskPreset(this.value)">
+                            <option value="0">Custom</option>
+                            <option value="1500">Iron Set + Food</option>
+                            <option value="6000">Diamond Set (Enchanted)</option>
+                            <option value="25000">Max Netherite Set</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Total Gear Cost ($)</label>
+                        <input type="number" id="risk-gear" class="form-input" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Expected Reward ($)</label>
+                        <input type="number" id="risk-reward" class="form-input" value="0">
+                    </div>
+                    <button class="btn-primary" style="width:100%" onclick="App.calcRisk()">Analyze Risk</button>
+                    
+                    <div id="risk-result" style="margin-top:20px; padding:15px; border-radius:8px; text-align:center; font-weight:bold; display:none;"></div>
                 </div>
             </section>
 
-            <!-- SECTION: WIKI -->
+            <!-- WIKI -->
             <section id="wiki" class="view">
                 <header>
-                    <h1>Knowledge Base</h1>
-                    <button class="btn-primary" onclick="addWikiNote()">+ New Entry</button>
+                    <h1>Notes & Wiki</h1>
+                    <button class="btn-primary" onclick="App.openNoteModal()"><i class="fa-solid fa-pen"></i> Add Note</button>
                 </header>
-                <div class="wiki-list" id="wiki-container"></div>
-            </section>
-
-            <!-- SECTION: JOURNAL -->
-            <section id="journal" class="view">
-                 <header>
-                    <h1>Captain's Log</h1>
-                    <button class="btn-primary" onclick="addJournalEntry()">+ Log Today</button>
-                </header>
-                <div class="timeline" id="journal-list"></div>
-            </section>
-
-            <!-- SECTION: RISK -->
-            <section id="risk" class="view">
-                <header>
-                    <h1>Risk Assessment</h1>
-                </header>
-                <div class="risk-calculator card">
-                    <h3>Worth It Calculator</h3>
-                    <div class="calc-row">
-                        <input type="number" id="risk-gear" placeholder="Gear Cost (Total)">
-                        <input type="number" id="risk-reward" placeholder="Expected Loot Value">
-                    </div>
-                    <button class="btn-secondary" onclick="calcRisk()">Calculate</button>
-                    <h3 id="risk-result">...</h3>
-                </div>
-                <div class="loss-log" id="loss-log"></div>
-            </section>
-
-             <!-- SECTION: PROFILE -->
-             <section id="profile" class="view">
-                <header><h1>My Profile</h1></header>
-                <div class="card profile-card">
-                    <div class="input-group">
-                        <label>In-Game Name</label>
-                        <input type="text" id="profile-ign" value="Steve">
-                    </div>
-                    <button class="btn-save" onclick="updateProfile()">Save Profile</button>
-                </div>
+                <div id="wiki-list" style="display:grid; gap:15px;"></div>
             </section>
 
         </main>
     </div>
-
     <script src="app.js"></script>
 </body>
 </html>
