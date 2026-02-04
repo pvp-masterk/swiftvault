@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwiftSMP Economy CMD</title>
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- SIDEBAR NAVIGATION -->
+        <aside class="sidebar">
+            <div class="brand">
+                <i class="fa-solid fa-cube"></i> SWIFT<span>ECO</span>
+            </div>
+            <nav>
+                <button class="nav-btn active" data-target="dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</button>
+                <button class="nav-btn" data-target="shops"><i class="fa-solid fa-store"></i> Shop Manager</button>
+                <button class="nav-btn" data-target="intel"><i class="fa-solid fa-user-secret"></i> Market Intel</button>
+                <button class="nav-btn" data-target="wiki"><i class="fa-solid fa-book"></i> Wiki & Notes</button>
+                <button class="nav-btn" data-target="journal"><i class="fa-solid fa-pen-nib"></i> Daily Log</button>
+                <button class="nav-btn" data-target="risk"><i class="fa-solid fa-skull"></i> Risk Tracker</button>
+                <button class="nav-btn" data-target="profile"><i class="fa-solid fa-id-card"></i> Profile</button>
+            </nav>
+            <div class="user-mini">
+                <div class="avatar"><i class="fa-solid fa-user"></i></div>
+                <div class="info">
+                    <span id="mini-ign">Player</span>
+                    <span id="mini-bal" class="money">$0</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="content">
+            
+            <!-- SECTION: DASHBOARD -->
+            <section id="dashboard" class="view active">
+                <header>
+                    <h1>Command Center</h1>
+                    <button class="btn-primary" onclick="addTransactionModal()">+ Add Transaction</button>
+                </header>
+
+                <div class="stats-grid">
+                    <div class="card stat-card">
+                        <h3>Current Balance</h3>
+                        <h2 id="dash-balance" class="money">$0</h2>
+                    </div>
+                    <div class="card stat-card">
+                        <h3>Net Worth (Est)</h3>
+                        <h2 id="dash-networth" class="money">$0</h2>
+                    </div>
+                    <div class="card stat-card">
+                        <h3>Total Profit (All Time)</h3>
+                        <h2 id="dash-profit" class="money positive">+$0</h2>
+                    </div>
+                </div>
+
+                <div class="dashboard-split">
+                    <div class="card chart-container">
+                        <h3>Balance History</h3>
+                        <canvas id="balanceChart"></canvas>
+                    </div>
+                    <div class="card recent-tx">
+                        <h3>Recent Activity</h3>
+                        <ul id="tx-list">
+                            <!-- JS fills this -->
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION: SHOP MANAGER -->
+            <section id="shops" class="view">
+                <header>
+                    <h1>Shop Operations</h1>
+                    <button class="btn-primary" onclick="toggleShopForm()">+ New Listing</button>
+                </header>
+
+                <!-- Hidden Form -->
+                <div id="shop-form" class="card form-card hidden">
+                    <h3>Add/Edit Shop Item</h3>
+                    <div class="input-group">
+                        <input type="text" id="shop-item-name" placeholder="Item Name (e.g. Diamond Sword)">
+                        <input type="number" id="shop-cost" placeholder="Cost to Obtain">
+                        <input type="number" id="shop-price" placeholder="Selling Price">
+                        <input type="number" id="shop-stock" placeholder="Current Stock">
+                        <input type="text" id="shop-notes" placeholder="Notes (e.g. Undercutting iHateCreepers)">
+                    </div>
+                    <button class="btn-save" onclick="saveShopItem()">Save Item</button>
+                </div>
+
+                <div class="shop-grid" id="shop-list">
+                    <!-- JS Fills Shop Cards -->
+                </div>
+            </section>
+
+            <!-- SECTION: MARKET INTEL -->
+            <section id="intel" class="view">
+                <header>
+                    <h1>Market Intelligence</h1>
+                    <button class="btn-primary" onclick="addCompetitor()">+ Track Player</button>
+                </header>
+                <div class="intel-grid" id="intel-list">
+                    <!-- JS Fills Competitor Cards -->
+                </div>
+            </section>
+
+            <!-- SECTION: WIKI -->
+            <section id="wiki" class="view">
+                <header>
+                    <h1>Knowledge Base</h1>
+                    <button class="btn-primary" onclick="addWikiNote()">+ New Entry</button>
+                </header>
+                <div class="wiki-list" id="wiki-container"></div>
+            </section>
+
+            <!-- SECTION: JOURNAL -->
+            <section id="journal" class="view">
+                 <header>
+                    <h1>Captain's Log</h1>
+                    <button class="btn-primary" onclick="addJournalEntry()">+ Log Today</button>
+                </header>
+                <div class="timeline" id="journal-list"></div>
+            </section>
+
+            <!-- SECTION: RISK -->
+            <section id="risk" class="view">
+                <header>
+                    <h1>Risk Assessment</h1>
+                </header>
+                <div class="risk-calculator card">
+                    <h3>Worth It Calculator</h3>
+                    <div class="calc-row">
+                        <input type="number" id="risk-gear" placeholder="Gear Cost (Total)">
+                        <input type="number" id="risk-reward" placeholder="Expected Loot Value">
+                    </div>
+                    <button class="btn-secondary" onclick="calcRisk()">Calculate</button>
+                    <h3 id="risk-result">...</h3>
+                </div>
+                <div class="loss-log" id="loss-log"></div>
+            </section>
+
+             <!-- SECTION: PROFILE -->
+             <section id="profile" class="view">
+                <header><h1>My Profile</h1></header>
+                <div class="card profile-card">
+                    <div class="input-group">
+                        <label>In-Game Name</label>
+                        <input type="text" id="profile-ign" value="Steve">
+                    </div>
+                    <button class="btn-save" onclick="updateProfile()">Save Profile</button>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
